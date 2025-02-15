@@ -33,19 +33,30 @@ export const testGenerateText = async () => {
 export const getVideoScript = async (lumaPostDTO: LumaPostDTO): Promise<string> => {
     const prompt = "Write a tiktok brainrot video script for the following luma event: " + JSON.stringify(lumaPostDTO);
 
-    const stream = await streamText({
+    const result = streamText({
         model: model,
         prompt: prompt,
-        maxTokens: 100,
-    });
-
-    if (!stream) {
-        throw new Error("Could not create stream");
+        maxTokens: 1000,
+        // onChunk({ chunk }) {
+        //     console.log(chunk); // new chunk of text
+        //   },
+        onFinish({ finishReason }) {
+            console.log(finishReason); // your error logging logic here
+          },
+        onError({ error }) {
+            console.error(error); // your error logging logic here
+          },
+    })
+    
+    const reader = result.textStream.getReader();
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      console.log(value);
     }
 
-    // example: use textStream as an async iterable
-    for await (const textPart of stream.textStream) {
-        console.log(textPart);
-    }
-    return stream.text;
+    return result.text;
 }
