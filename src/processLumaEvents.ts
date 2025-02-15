@@ -1,4 +1,3 @@
-
 import fs from "fs";
 
 type LumaEventProcess = {
@@ -26,34 +25,101 @@ function getLumaEventProcess(lumaEventId: string): LumaEventProcess | undefined 
 }
 
 function writeLumaEventProcess(lumaEventProcess: LumaEventProcess): void {
-    const pastEvent = getLumaEventProcess(lumaEventProcess.lumaEventId)
-    if (pastEvent) {
+    try {
+        let processLog: Record<string, LumaEventProcess> = {};
+        // Try to read existing log, if it exists
         try {
             const rawData = fs.readFileSync('data/processLog.json', 'utf-8');
-            const processLog = JSON.parse(rawData);
-            processLog[lumaEventProcess.lumaEventId] = lumaEventProcess;
-            fs.writeFileSync('data/processLog.json', JSON.stringify(processLog, null, 2));
+            processLog = JSON.parse(rawData);
         } catch (error) {
-            console.error("Error writing to processLog.json:", error);
+            // File doesn't exist or is empty, start with empty object
         }
+        
+        // Update the log with new event
+        processLog[lumaEventProcess.lumaEventId] = lumaEventProcess;
+        
+        // Ensure the data directory exists
+        fs.mkdirSync('data', { recursive: true });
+        
+        // Write the updated log
+        fs.writeFileSync('data/processLog.json', JSON.stringify(processLog, null, 2));
+    } catch (error) {
+        console.error("Error writing to processLog.json:", error);
     }
 }
 
+// update the process log for a given luma event id
 function updateLumaEventProcess(lumaEventId: string, update: Partial<LumaEventProcess>): LumaEventProcess {
-    const lumaEventProcess = getLumaEventProcess(lumaEventId)
+    const lumaEventProcess = getLumaEventProcess(lumaEventId) || {
+        lumaEventId,
+        status: "pending"
+    };
     return {
         ...lumaEventProcess,
         ...update,
     }
 }
 
-export const processLumaEvent = (lumaEventId: string): LumaEventProcess => {
-    // do step 1 of the process
-    // updateProcessLog
-    // do step 2 of the process
-    // updateProcessLog
-    // do step 3 of the process
-    // updateProcessLog
-    // finish the process
-    // updateProcessLog
+export const processLumaEvent = async (lumaEventId: string): Promise<LumaEventProcess> => {
+    // Check if event has already been processed successfully
+    const existingProcess = getLumaEventProcess(lumaEventId);
+    if (existingProcess && existingProcess.status === "success") {
+        return existingProcess;
+    }
+
+    // Initialize process state
+    let processState: LumaEventProcess = {
+        lumaEventId,
+        status: "pending",
+    };
+    
+    try {
+        // Write initial state
+        writeLumaEventProcess(processState);
+        
+        // Fetch event details from Luma API
+        const eventDetails = await fetch(`https://api.lu.ma/calendar/get?event_api_id=${lumaEventId}`)
+            .then(res => res.json());
+        processState = updateLumaEventProcess(lumaEventId, {
+            status: "pending",
+            videoFileUrl: eventDetails.video_url
+        });
+        
+        // Step 2: Process video if available
+        if (processState.videoFileUrl) {
+            processState = updateLumaEventProcess(lumaEventId, {
+                status: "pending",
+            });
+        }
+        
+        // Mark as complete
+        processState = updateLumaEventProcess(lumaEventId, {
+            status: "success",
+            completedAt: new Date()
+        });
+        
+    } catch (error) {
+        // Handle any errors
+        processState = updateLumaEventProcess(lumaEventId, {
+            status: "error",
+            errors: [error instanceof Error ? error.message : "Unknown error"],
+            completedAt: new Date()
+        });
+    }
+    
+    // Write final state
+    writeLumaEventProcess(processState);
+    return processState;
 }
+
+// // Simple test
+
+// const allEvents = await fetch('https://api.lu.ma/calendar/get-items?calendar_api_id=cal-RHI1LJC6K8JRBLI&period=future&pagination_limit=20')
+//     .then(res => res.json());
+// console.log(allEvents)
+
+// const processResults = await Promise.all(
+//     allEvents.entries.map((event: { api_id: string }) => processLumaEvent(event.api_id))
+// );
+
+// console.log('Processing complete:', processResults);
