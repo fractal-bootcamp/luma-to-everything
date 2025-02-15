@@ -1,4 +1,4 @@
-import type { LumaPostDTO } from "./types"
+import type { LumaPostDTO } from "../types"
 
 
 export type VideoFrame = {

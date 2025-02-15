@@ -1,5 +1,5 @@
-import type { LumaFullEventType } from "./src/lumaTypes";
-import type { LumaPostDTO } from "./types";
+import type { LumaFullEventType } from "./lumaTypes";
+import type { LumaPostDTO } from "../types";
 
 
 // ERIC:

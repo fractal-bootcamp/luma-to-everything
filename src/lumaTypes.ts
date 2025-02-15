@@ -1,4 +1,4 @@
-import type { lumaFullEventExample } from "./src/lumaFullEvent";
+import type { lumaFullEventExample } from "./lumaFullEvent";
 
 export type LumaFullEventType = typeof lumaFullEventExample
 
