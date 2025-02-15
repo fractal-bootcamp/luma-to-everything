@@ -36,7 +36,7 @@ const model = google('gemini-2.0-flash-lite-preview-02-05', {
 export const testGenerateText = async () => {
     const result = await streamText({
         model: model,
-        prompt: "Write a tiktok brainrot video script for the following luma event: AI Agents Hackathon: Building for Social and Marketing Use Cases",
+        prompt: "Write a 15 second tiktok brainrot video script for the following luma event: AI Agents Hackathon: Building for Social and Marketing Use Cases",
     })
     for await (const textPart of result.textStream) {
         console.log(textPart);
