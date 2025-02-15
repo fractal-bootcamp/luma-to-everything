@@ -1,4 +1,7 @@
+import type { lumaCalResponse } from "../examples/exampleLumaCalGet";
 import type { lumaFullEventExample } from "./lumaFullEvent";
+
+export type LumaCalendarResponse = typeof lumaCalResponse
 
 export type LumaFullEventType = typeof lumaFullEventExample
 
