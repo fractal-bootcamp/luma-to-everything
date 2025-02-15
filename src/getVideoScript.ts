@@ -2,11 +2,11 @@ import { google } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import mockLumaPostDTO from './mockLumaPost';
 import type { LumaPostDTO } from './lumaTypes';
-const model = google('gemini-2.0-flash-001', {
-    cachedContent: undefined,
-    structuredOutputs: undefined,
-    safetySettings: undefined,
-    useSearchGrounding: undefined, // allows the model to use search results to generate the response
+const model = google('gemini-1.5-flash-latest', {
+    // cachedContent: undefined,
+    // structuredOutputs: undefined,
+    // safetySettings: undefined,
+    useSearchGrounding: false, // allows the model to use search results to generate the response
 });
 
 
