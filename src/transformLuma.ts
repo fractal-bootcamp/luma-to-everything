@@ -59,8 +59,3 @@ export const transformLumaPostDTO = async (lumaFullEvent: LumaFullEventType, pla
 
     return object;
 }
-
-// Test both functions together
-getLumaEventDescription(lumaFullEventExample.description_mirror)
-    .then(description => transformLumaPostDTO(lumaFullEventExample, description))
-    .then(console.log);
