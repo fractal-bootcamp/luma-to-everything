@@ -33,10 +33,23 @@ const model = google('gemini-2.0-flash-lite-preview-02-05', {
     useSearchGrounding: false, // allows the model to use search results to generate the response
 });
 
-export const testGenerateText = async () => {
+export const testGenerateText = async (lumaPostDTO: LumaPostDTO) => {
+  const prompt = `Using these video prompting guidelines:
+  ${videoPromptingTips}
+  
+  Create a TikTok-style video script for this event, focusing on cinematic details and engaging visuals:
+  ${JSON.stringify(lumaPostDTO)}
+  
+  The script should:
+  1. Be exactly 15 seconds long
+  2. Include specific camera movements and angles
+  3. Describe precise visual transitions
+  4. Detail any text overlays or effects
+  5. Maintain high energy and engagement throughout`
+  
     const result = await streamText({
         model: model,
-        prompt: "Write a 15 second tiktok brainrot video script for the following luma event: AI Agents Hackathon: Building for Social and Marketing Use Cases",
+        prompt: prompt,
     })
     for await (const textPart of result.textStream) {
         console.log(textPart);
@@ -53,7 +66,19 @@ export const testGenerateText = async () => {
 // 2. use the vercel AI SDK to convert the LumaPostDTO to a video script
 
 export const getVideoScript = async (lumaPostDTO: LumaPostDTO): Promise<string> => {
-    const prompt = "Write a tiktok brainrot video script for the following luma event: " + JSON.stringify(lumaPostDTO);
+    const prompt = `Using these video prompting guidelines:
+    ${videoPromptingTips}
+    
+    Create a TikTok-style video script for this event, focusing on cinematic details and engaging visuals:
+    ${JSON.stringify(lumaPostDTO)}
+    
+    The script should:
+    1. Be exactly 15 seconds long
+    2. Include specific camera movements and angles
+    3. Describe precise visual transitions
+    4. Detail any text overlays or effects
+    5. Maintain high energy and engagement throughout`
+
 
     const result = streamText({
         model: model,
@@ -62,6 +87,34 @@ export const getVideoScript = async (lumaPostDTO: LumaPostDTO): Promise<string> 
         // onChunk({ chunk }) {
         //     console.log(chunk); // new chunk of text
         //   },
+        onFinish({ finishReason }) {
+            console.log(finishReason); // your error logging logic here
+          },
+        onError({ error }) {
+            console.error(error); // your error logging logic here
+          },
+    })
+    
+    const reader = result.textStream.getReader();
+    
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      console.log(value);
+    }
+
+    return result.text;
+}
+
+export const getVideoScript_NO_PROMPT_ENG = async (lumaPostDTO: LumaPostDTO): Promise<string> => {
+    const prompt = "Write a 15 second tiktok brainrot video script for the following luma event: " + JSON.stringify(lumaPostDTO);
+    
+    const result = streamText({
+        model: model,
+        prompt: prompt,
+        maxTokens: 1000,
         onFinish({ finishReason }) {
             console.log(finishReason); // your error logging logic here
           },
