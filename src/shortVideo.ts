@@ -29,9 +29,6 @@ export type AudioFile = {
 // 1b. prompt engineering work to make sure the video script is 98% JUICY!!!!
 // OR generate 3-4 scripts and pick the best one maximizing JUICYNESS
 // 2. use the vercel AI SDK to convert the LumaPostDTO to a video script
-export const getVideoScript = (lumaPostDTO: LumaPostDTO): string => {
-    return "mock video script"
-}
 
 // ERI:
 // RESEARCH 2: Get Royalty Free Music via API

@@ -4,6 +4,28 @@ import type { LumaPostDTO } from './lumaTypes';
 import dotenv from 'dotenv';
 dotenv.config();
 
+
+const videoPromptingTips = `
+📝 Prompt Engineering
+
+When writing prompts, focus on detailed, chronological descriptions of actions and scenes. Include specific movements, appearances, camera angles, and environmental details - all in a single flowing paragraph. Start directly with the action, and keep descriptions literal and precise. Think like a cinematographer describing a shot list. Keep within 200 words. For best results, build your prompts using this structure:
+
+Start with main action in a single sentence
+Add specific details about movements and gestures
+Describe character/object appearances precisely
+Include background and environment details
+Specify camera angles and movements
+Describe lighting and colors
+Note any changes or sudden events
+See examples for more inspiration.
+
+🎮 Parameter Guide
+
+Resolution Preset: Higher resolutions for detailed scenes, lower for faster generation and simpler scenes
+Seed: Save seed values to recreate specific styles or compositions you like
+Guidance Scale: 3-3.5 are the recommended values
+Inference Steps: More steps (40+) for quality, fewer steps (20-30) for speed`
+
 const model = google('gemini-2.0-flash-lite-preview-02-05', {
     // cachedContent: undefined,
     // structuredOutputs: undefined,
