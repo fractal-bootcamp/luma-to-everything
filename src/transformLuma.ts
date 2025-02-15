@@ -1,13 +1,22 @@
 import type { LumaFullEventType, LumaPostDTO } from "./lumaTypes";
-
+import { google } from '@ai-sdk/google';
+import { generateText } from 'ai';
+import { generateObject } from 'ai';
+import { z } from 'zod';
+import { lumaFullEventExample } from './lumaFullEvent'
 
 // ERIC:
 // grab the lumaDescriptionMirror
 // use vercel AI sdk with deepseek or geminiflash (fastest, cheapest models)
 // to convert the lumaDescriptionMirror to a plaintext description
 // return the plaintext description
-export const getLumaEventDescription = (lumaDescriptionMirror: LumaFullEventType["description_mirror"]): string => {
-    return "This is a sample event description."
+export const getLumaEventDescription = async (lumaDescriptionMirror: LumaFullEventType["description_mirror"]): Promise<string> => {
+    const { text } = await generateText({
+        model: google('gemini-1.5-flash'),
+        prompt: `Convert this event description to clear, concise plaintext, preserving all important details: ${JSON.stringify(lumaDescriptionMirror)}`,
+    });
+
+    return text;
 }
 
 // ERIC:
@@ -17,20 +26,41 @@ export const getLumaEventDescription = (lumaDescriptionMirror: LumaFullEventType
 // use vercel AI sdk with deepseek or geminiflash (fastest, cheapest models)
 // to convert the plainTextDescription and the lumaFullEvent to a LumaPostDTO
 // return the LumaPostDTO
-export const transformLumaPostDTO = (lumaFullEvent: LumaFullEventType, plainTextDescription: string): LumaPostDTO => {
+export const transformLumaPostDTO = async (lumaFullEvent: LumaFullEventType, plainTextDescription: string): Promise<LumaPostDTO> => {
+    const { object } = await generateObject({
+        model: google('gemini-1.5-flash'),
+        schema: z.object({
+            title: z.string(),
+            image: z.string(),
+            plaintext_description: z.string(),
+            time: z.string(),
+            location: z.string(),
+            visibility: z.enum(['private', 'public']),
+            keywords: z.array(z.string()),
+            audience: z.string(),
+            total_rsvps: z.number(),
+            total_capacity: z.number(),
+            host: z.string(),
+            event_type: z.enum([
+                'Hackathon',
+                'Networking',
+                'Cozy',
+                'Entertainment/Fun',
+                'Lectures/Workshops',
+                'Coworking',
+                'Classes',
+                'Community Events'
+            ])
+        }),
+        prompt: `Based on this event information, generate a structured event object:
+            Full Event: ${JSON.stringify(lumaFullEvent)}
+            Description: ${plainTextDescription}`,
+    });
 
-    return {
-        title: "Sample Event",
-        image: "https://example.com/sample-image.jpg",
-        plaintext_description: plainTextDescription,
-        time: "2025-03-06T23:00:00.000Z",
-        location: "Sample Location",
-        visibility: "private",
-        keywords: ["sample", "event"],
-        audience: "general",
-        total_rsvps: 100,
-        total_capacity: 200,
-        host: "Sample Host",
-        event_type: "Networking"
-    }
+    return object;
 }
+
+// Test both functions together
+getLumaEventDescription(lumaFullEventExample.description_mirror)
+    .then(description => transformLumaPostDTO(lumaFullEventExample, description))
+    .then(console.log);
