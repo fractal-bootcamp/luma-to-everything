@@ -1,4 +1,4 @@
-import type { LumaPostDTO } from "../types"
+import type { LumaPostDTO } from "./lumaTypes"
 
 
 export type VideoFrame = {
@@ -75,5 +75,3 @@ export const stitchVideo = (videoFrames: VideoFrame[], narrationAudioFile: Audio
         duration: 10
     }
 }
-
-export const narrateVideo

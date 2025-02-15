@@ -2,6 +2,21 @@ import type { lumaFullEventExample } from "./lumaFullEvent";
 
 export type LumaFullEventType = typeof lumaFullEventExample
 
+export type LumaPostDTO = {
+    title: string;
+    image: string;
+    plaintext_description: string;
+    time: string;
+    location: string;
+    visibility: "private" | "public";
+    keywords: string[];
+    audience: string;
+    total_rsvps: number;
+    total_capacity: number;
+    host: string;
+    event_type: "Hackathon" | "Networking" | "Cozy" | "Entertainment/Fun" | "Lectures/Workshops" | "Coworking" | "Classes" | "Community Events";
+}
+
 export type LumaEventSummaryType ={
     api_id: string;
     calendar_api_id: string;
