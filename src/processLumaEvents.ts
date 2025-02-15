@@ -48,12 +48,12 @@ function updateLumaEventProcess(lumaEventId: string, update: Partial<LumaEventPr
 }
 
 export const processLumaEvent = (lumaEventId: string): LumaEventProcess => {
-    const lumaEventProcess = {
-        lumaEventId,
-        status: "pending",
-    }
-    return {
-        lumaEventId,
-        status: "pending",
-    }
+    // do step 1 of the process
+    // updateProcessLog
+    // do step 2 of the process
+    // updateProcessLog
+    // do step 3 of the process
+    // updateProcessLog
+    // finish the process
+    // updateProcessLog
 }
