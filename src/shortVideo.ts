@@ -24,6 +24,7 @@ export type AudioFile = {
 // identify the best model for converting luma events into brainrot videos and/or hype videos
 
 
+// "ANDREW:"
 // 1. make a mock LumaPostDTO that is actually valid by reading from the actual luma page
 // 1b. prompt engineering work to make sure the video script is 98% JUICY!!!!
 // OR generate 3-4 scripts and pick the best one maximizing JUICYNESS
