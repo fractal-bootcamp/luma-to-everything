@@ -1,7 +1,7 @@
 import type { LumaPostDTO } from "./lumaTypes";
 
 
-const mockLumaPostDTO: LumaPostDTO = {
+export const mockLumaPostDTO: LumaPostDTO = {
     title: "AI Agents Hackathon: Building for Social and Marketing Use Cases",
     image: "https://images.lumacdn.com/cdn-cgi/image/format=auto,fit=cover,dpr=2,background=white,quality=75,width=400,height=400/gallery-images/cr/7b64d738-0604-403d-b7ff-ed859d97a7bc",
     plaintext_description: `​Overview

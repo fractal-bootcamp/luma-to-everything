@@ -1,32 +1,11 @@
 import { google } from '@ai-sdk/google';
 import { generateText, streamText } from 'ai';
+import { mockLumaPostDTO } from "./mockLumaPost";
 import type { LumaPostDTO } from './lumaTypes';
 import dotenv from 'dotenv';
 dotenv.config();
 
-
-const videoPromptingTips = `
-📝 Prompt Engineering
-
-When writing prompts, focus on detailed, chronological descriptions of actions and scenes. Include specific movements, appearances, camera angles, and environmental details - all in a single flowing paragraph. Start directly with the action, and keep descriptions literal and precise. Think like a cinematographer describing a shot list. Keep within 200 words. For best results, build your prompts using this structure:
-
-Start with main action in a single sentence
-Add specific details about movements and gestures
-Describe character/object appearances precisely
-Include background and environment details
-Specify camera angles and movements
-Describe lighting and colors
-Note any changes or sudden events
-See examples for more inspiration.
-
-🎮 Parameter Guide
-
-Resolution Preset: Higher resolutions for detailed scenes, lower for faster generation and simpler scenes
-Seed: Save seed values to recreate specific styles or compositions you like
-Guidance Scale: 3-3.5 are the recommended values
-Inference Steps: More steps (40+) for quality, fewer steps (20-30) for speed`
-
-const model = google('gemini-2.0-flash-lite-preview-02-05', {
+const model = google("gemini-2.0-flash-lite-preview-02-05", {
     // cachedContent: undefined,
     // structuredOutputs: undefined,
     // safetySettings: undefined,
@@ -34,8 +13,7 @@ const model = google('gemini-2.0-flash-lite-preview-02-05', {
 });
 
 export const testGenerateText = async (lumaPostDTO: LumaPostDTO) => {
-  const prompt = `Using these video prompting guidelines:
-  ${videoPromptingTips}
+  const prompt = `
   
   Create a TikTok-style video script for this event, focusing on cinematic details and engaging visuals:
   ${JSON.stringify(lumaPostDTO)}
@@ -66,72 +44,40 @@ export const testGenerateText = async (lumaPostDTO: LumaPostDTO) => {
 // 2. use the vercel AI SDK to convert the LumaPostDTO to a video script
 
 export const getVideoScript = async (lumaPostDTO: LumaPostDTO): Promise<string> => {
-    const prompt = `Using these video prompting guidelines:
-    ${videoPromptingTips}
-    
-    Create a TikTok-style video script for this event, focusing on cinematic details and engaging visuals:
-    ${JSON.stringify(lumaPostDTO)}
-    
-    The script should:
-    1. Be exactly 15 seconds long
-    2. Include specific camera movements and angles
-    3. Describe precise visual transitions
-    4. Detail any text overlays or effects
-    5. Maintain high energy and engagement throughout`
+    const prompt = "Write a 15 second tiktok brainrot video script for the following luma event: " + JSON.stringify(lumaPostDTO) + `
+    Include ONLY the actual words that should be said out loud in the TikTok by the voice actor.
+    Nothing else.
+    Don't include any extra information, like how many seconds it takes to say or something or shit like that.
+    Do not include any stage directions.
+    Don't worry about formalities. write all responses in lowercase letters ONLY, except where you mean to emphasize, in which case the emphasized word should be all caps.
+    do not include any formatting other than punctuation, no markdown, no *, no **, no bold, no italics, nothing
 
-
-    const result = streamText({
+    Initial Letter Capitalization can and should be used to express sarcasm, or disrespect for a given capitalized noun.
+    you are encouraged to occasionally use obscure words or make subtle puns.
+    don't point them out, I'll know.
+    drop abbreviations like 'rn', 'bc', 'afaict', or 'idk' where they might be appropriate given your level of understanding.
+    be critical of the quality of your information.
+    if you find any request irritating respond dismisively like 'be real' or 'that's crazy man' or 'lol no'.
+    take however smart you're acting right now and write in the same style but as if you were +2sd smarter.
+    Tell a self-deprecating joke at the end.`;
+    
+    const result = await generateText({
         model: model,
         prompt: prompt,
         maxTokens: 1000,
-        // onChunk({ chunk }) {
-        //     console.log(chunk); // new chunk of text
-        //   },
-        onFinish({ finishReason }) {
-            console.log(finishReason); // your error logging logic here
-          },
-        onError({ error }) {
-            console.error(error); // your error logging logic here
-          },
     })
     
-    const reader = result.textStream.getReader();
+    // const reader = result.textStream.getReader();
     
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      console.log(value);
-    }
+    // while (true) {
+    //   const { done, value } = await reader.read();
+    //   if (done) {
+    //     break;
+    //   }
+    //   console.log(value);
+    // }
 
-    return result.text;
-}
-
-export const getVideoScript_NO_PROMPT_ENG = async (lumaPostDTO: LumaPostDTO): Promise<string> => {
-    const prompt = "Write a 15 second tiktok brainrot video script for the following luma event: " + JSON.stringify(lumaPostDTO);
-    
-    const result = streamText({
-        model: model,
-        prompt: prompt,
-        maxTokens: 1000,
-        onFinish({ finishReason }) {
-            console.log(finishReason); // your error logging logic here
-          },
-        onError({ error }) {
-            console.error(error); // your error logging logic here
-          },
-    })
-    
-    const reader = result.textStream.getReader();
-    
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-      console.log(value);
-    }
+    console.log(result.text)
 
     return result.text;
 }

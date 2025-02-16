@@ -1,5 +1,5 @@
 const REVID_API_KEY = "0f1f92b7-bc8c-4e83-acaa-75835cafcec5"
-interface CreationParams {
+export type CreationParams = {
     inputText: string; // The text or URL to take as main input
     hasToGenerateVoice: boolean; // Generate a voiceover to speak the inputText
     selectedVoice?: string; // Optional: An elevenLabs voice id, required if hasToGenerateVoice is true
@@ -20,7 +20,7 @@ interface CreationParams {
     hasTextSmallAtBottom: boolean;
     ratio: string;
     sourceType: string;
-    selectedStoryStyle: {
+    selectedStoryStyle?: {
         value: string;
         label: string;
     };
@@ -33,13 +33,13 @@ interface RevidRequest {
 }
 
 export const defaultCreationParams: CreationParams = {
-    inputText: "this is a test",
+    inputText: "If you're a founder who loves to build and loves to win, this is for you. Founder Game Night is back, and it’s your chance to connect, compete, and have a great time with other builders. Doors open at seven, and by seven-thirty, the games begin. Board games, card games, social games—whatever your style, we’ve got something for you. Snacks and drinks are covered, and if you have a favorite game, let us know—we’ll try to bring it. Whether you're here to strategize, socialize, or just unwind, you’ll be surrounded by fellow founders who get it. Bring a +1 and come ready to play. See you there.",
     hasToGenerateVoice: true,
-    selectedVoice: "SAz9YHcvj6GT2YYXdXww",
+    selectedVoice: "cgSgspJ2msm6clMCkdW9",
     hasToSearchMedia: true,
-    mediaType: "movingImage",
+    mediaType: "stockVideo",
     generationPreset: "DEFAULT",
-    generationUserPrompt: "Dragonball universe",
+    generationUserPrompt: "tiktok brainrot", // "dragonball universe"
     hasEnhancedGeneration: true,
     audioUrl: "https://cdn.tfrv.xyz/audio/observer.mp3",
     captionPresetName: "Wrap 1",
@@ -53,10 +53,10 @@ export const defaultCreationParams: CreationParams = {
     hasTextSmallAtBottom: false,
     ratio: "9 / 16",
     sourceType: "contentScraping",
-    selectedStoryStyle: {
-        value: "custom",
-        label: "Custom"
-    },
+    // selectedStoryStyle: {
+    //     value: "custom",
+    //     label: "Custom"
+    // },
     hasToGenerateVideos: true,
 };
 

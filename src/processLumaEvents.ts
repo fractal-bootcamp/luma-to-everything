@@ -1,4 +1,9 @@
 import fs from "fs";
+import type { LumaFullEventType } from "./lumaTypes";
+import { getLumaEventDescription, transformLumaPostDTO } from "./transformLuma";
+import { defaultCreationParams } from "./video/revidExample";
+import { getVideoScript } from "./getVideoScript";
+import { useRevid } from "./video/useRevid";
 
 type LumaEventProcess = {
     lumaEventId: string,
@@ -63,6 +68,7 @@ function updateLumaEventProcess(lumaEventId: string, update: Partial<LumaEventPr
 export const processLumaEvent = async (lumaEventId: string): Promise<LumaEventProcess> => {
     // Check if event has already been processed successfully
     const existingProcess = getLumaEventProcess(lumaEventId);
+    console.log("was there an existing event already processed?: ", existingProcess)
     if (existingProcess && existingProcess.status === "success") {
         return existingProcess;
     }
@@ -78,12 +84,23 @@ export const processLumaEvent = async (lumaEventId: string): Promise<LumaEventPr
         writeLumaEventProcess(processState);
         
         // Fetch event details from Luma API
-        const eventDetails = await fetch(`https://api.lu.ma/calendar/get?event_api_id=${lumaEventId}`)
+        const eventDetails: LumaFullEventType = await fetch(`https://api.lu.ma/event/get?event_api_id=${lumaEventId}`)
             .then(res => res.json());
+
+        console.log("got event details: ", eventDetails.api_id)
+
+        
         processState = updateLumaEventProcess(lumaEventId, {
             status: "pending",
-            videoFileUrl: eventDetails.video_url
+            videoFileUrl: "none",
         });
+
+        // Test both functions together
+        const lumaEventDescription = await getLumaEventDescription(eventDetails.description_mirror)
+        console.log(lumaEventDescription)
+
+        const lumaPostDTO = await transformLumaPostDTO(eventDetails, lumaEventDescription)
+        console.log("got luma post DTO:", lumaPostDTO)
         
         // Step 2: Process video if available
         if (processState.videoFileUrl) {
@@ -91,11 +108,18 @@ export const processLumaEvent = async (lumaEventId: string): Promise<LumaEventPr
                 status: "pending",
             });
         }
+
+        const videoScript = await getVideoScript(lumaPostDTO)
+        console.log("OFFICIAL VIDEO SCRIPT FOUND: ", videoScript)
+
+        const url = await useRevid({...defaultCreationParams, inputText: videoScript + "See you at your friendly, neighborhood tech hub, fractaltech.xyz"})
+        console.log(url);
         
         // Mark as complete
         processState = updateLumaEventProcess(lumaEventId, {
             status: "success",
-            completedAt: new Date()
+            completedAt: new Date(),
+            videoFileUrl: url,
         });
         
     } catch (error) {
@@ -114,12 +138,18 @@ export const processLumaEvent = async (lumaEventId: string): Promise<LumaEventPr
 
 // // Simple test
 
-// const allEvents = await fetch('https://api.lu.ma/calendar/get-items?calendar_api_id=cal-RHI1LJC6K8JRBLI&period=future&pagination_limit=20')
-//     .then(res => res.json());
-// console.log(allEvents)
+const allEvents: {entries: LumaFullEventType[]} = await fetch('https://api.lu.ma/calendar/get-items?calendar_api_id=cal-RHI1LJC6K8JRBLI&period=future&pagination_limit=20')
+    .then(res => res.json());
 
-// const processResults = await Promise.all(
-//     allEvents.entries.map((event: { api_id: string }) => processLumaEvent(event.api_id))
-// );
+console.log(allEvents.entries)
 
-// console.log('Processing complete:', processResults);
+const processResults = [];
+for (const event of allEvents.entries) {
+    // console.log("WE ARE PROCESSING THE FIRST EVENT:", event)
+    console.log("THE MOST IMPORTANT THING IS THE EVENT ID:", event.api_id, "EVENT.EVENT.API_ID:", event.event.api_id)
+  const result = await processLumaEvent(event.event.api_id);
+  console.log(result)
+  processResults.push(result);
+}
+
+console.log('Processing complete:', processResults);
